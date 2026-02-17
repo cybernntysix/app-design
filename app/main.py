@@ -1,7 +1,11 @@
 # Main entry point for the Kivy app
+import os
+
 from kivy.app import App
 import kivy.resources as resources
+
 resources.resource_add_path('app/assets')
+
 from kivy.uix.screenmanager import ScreenManager
 from app.screens.onboarding import OnboardingScreen
 from app.screens.onboarding_theme import OnboardingThemeScreen
@@ -13,6 +17,7 @@ from app.screens.tools.chatbot import ChatbotScreen
 from app.screens.tools.outreach_writer import OutreachWriterScreen
 from app.screens.tools.notepad import NotepadScreen
 from app.utils.bottom_nav import BottomNavBar
+
 
 class MainApp(App):
     def build(self):
@@ -26,13 +31,19 @@ class MainApp(App):
         sm.add_widget(ChatbotScreen(name='chatbot'))
         sm.add_widget(OutreachWriterScreen(name='outreach_writer'))
         sm.add_widget(NotepadScreen(name='notepad'))
-        sm.current = 'onboarding'  # Start at onboarding, skipping PIN
+
+        default_start = 'onboarding'
+        requested_start = os.getenv('APP_START_SCREEN', default_start)
+        sm.current = requested_start if requested_start in sm.screen_names else default_start
+
         # Root layout with ScreenManager and BottomNavBar
         from kivy.uix.boxlayout import BoxLayout
+
         root = BoxLayout(orientation='vertical')
         root.add_widget(sm)
         root.add_widget(BottomNavBar(sm))
         return root
+
 
 if __name__ == '__main__':
     MainApp().run()
